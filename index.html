@@ -35,6 +35,8 @@ iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#e6e
     <nav>
       <a class="item" data-page="prototype" href="#prototype">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"></rect><path d="M11 18h2"></path></svg>交互原型</a>
+      <a class="item" data-page="admin" href="#admin">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18M9 9v11"></path></svg>后台·表情包管理</a>
       <a class="item" data-page="doc" href="#doc">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"></path><path d="M14 2v6h6M9 13h8M9 17h8"></path></svg>需求文档</a>
       <div class="toc" id="toc">
@@ -42,10 +44,12 @@ iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#e6e
         <a href="#doc/s2" data-sec="s2">二、面板结构</a>
         <a href="#doc/s3" data-sec="s3">三、GIFs 分页</a>
         <a href="#doc/s4" data-sec="s4">四、Search 分页</a>
-        <a href="#doc/s5" data-sec="s5">五、表情素材与元数据管理</a>
-        <a class="sub" href="#doc/s5-1" data-sec="s5-1">上线流程</a>
-        <a class="sub" href="#doc/s5-2" data-sec="s5-2">元数据</a>
-        <a class="sub" href="#doc/s5-3" data-sec="s5-3">管理规则</a>
+        <a href="#doc/s5" data-sec="s5">五、后台表情包管理</a>
+        <a class="sub" href="#doc/s5-1" data-sec="s5-1">管理流程</a>
+        <a class="sub" href="#doc/s5-2" data-sec="s5-2">页面功能</a>
+        <a class="sub" href="#doc/s5-3" data-sec="s5-3">上传规则</a>
+        <a class="sub" href="#doc/s5-4" data-sec="s5-4">字段定义</a>
+        <a class="sub" href="#doc/s5-5" data-sec="s5-5">管理规则</a>
         <a href="#doc/s6" data-sec="s6">六、验收标准</a>
       </div>
     </nav>
@@ -54,22 +58,40 @@ iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#e6e
 </div>
 <script>
 var view=document.getElementById('view');
-var FILES={prototype:'prototype.html',doc:'requirements.html'};
+var FILES={prototype:'prototype.html',admin:'admin.html',doc:'requirements.html'};
 var current=null;
 function route(){
   var h=(location.hash||'#prototype').slice(1).split('/');
   var page=FILES[h[0]]?h[0]:'prototype', sec=h[1]||'';
   document.querySelectorAll('.item').forEach(function(a){a.classList.toggle('active',a.dataset.page===page)});
   document.querySelectorAll('.toc a').forEach(function(a){a.classList.toggle('active',page==='doc'&&a.dataset.sec===sec)});
-  if(current!==page){current=page;view.src=FILES[page]+(sec?'#'+sec:'');view.onload=function(){if(sec)scrollDoc(sec)};return;}
-  if(page==='doc'){scrollDoc(sec)}
+  if(current!==page){
+    current=page;
+    view.src=FILES[page];
+    if(page==='doc'&&sec)waitScroll(sec);
+    return;
+  }
+  if(page==='doc'){waitScroll(sec)}
+}
+var timer=null;
+function waitScroll(sec){
+  clearInterval(timer);
+  if(!sec){scrollDoc('');return;}
+  var n=0;
+  timer=setInterval(function(){
+    n++;
+    var el=null;
+    try{el=view.contentDocument&&view.contentDocument.getElementById(sec)}catch(e){clearInterval(timer);return;}
+    if(el){clearInterval(timer);setTimeout(function(){scrollDoc(sec)},150);}
+    else if(n>80)clearInterval(timer);
+  },100);
 }
 function scrollDoc(sec){
   try{
     var d=view.contentDocument, el=sec?d.getElementById(sec):null;
     var top=el?el.getBoundingClientRect().top+view.contentWindow.scrollY-20:0;
     view.contentWindow.scrollTo({top:top,behavior:'smooth'});
-  }catch(e){view.src=FILES.doc+'#'+(sec||'')}
+  }catch(e){}
 }
 window.addEventListener('hashchange',route);
 route();

@@ -2,6 +2,7 @@
 
 - `index.html`：入口页，左侧切换「交互原型 / 需求文档」，需求文档目录可点击跳转章节
 - `prototype.html`：交互原型
+- `admin.html`：后台「聊天室管理 › 表情包管理」原型
 - `requirements.html`：需求文档
 - `assets/stickers/`：原型用表情图片
 
