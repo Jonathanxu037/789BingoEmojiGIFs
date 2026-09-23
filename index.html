@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>聊天表情 GIFs 模块 · 原型与需求文档</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:'Plus Jakarta Sans','PingFang SC','Microsoft YaHei',sans-serif;color:#1f2430;background:#e6e8ec}
+.app{display:flex;height:100%}
+aside{width:250px;flex-shrink:0;background:#fff;border-right:1px solid #e1e5eb;display:flex;flex-direction:column;overflow-y:auto}
+.brand{padding:22px 20px 18px;background:linear-gradient(90deg,#6a3fe0 0%,#5a63d8 55%,#39c3c0 100%);color:#fff}
+.brand b{display:block;font-size:16px;font-weight:800;line-height:1.35}
+.brand span{font-size:12px;opacity:.9}
+nav{padding:14px 10px;display:flex;flex-direction:column;gap:4px}
+.item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;font-weight:600;color:#3d4350;text-decoration:none;cursor:pointer}
+.item:hover{background:#f4f6f9}
+.item.active{background:#e3f6f3;color:#127a70}
+.item svg{flex-shrink:0}
+.toc{display:flex;flex-direction:column;gap:1px;padding:4px 0 8px 22px;margin-left:10px;border-left:1px solid #e1e5eb}
+.toc a{display:block;padding:6px 10px;border-radius:6px;font-size:13px;color:#5b6270;text-decoration:none}
+.toc a:hover{background:#f4f6f9;color:#1f2430}
+.toc a.active{color:#127a70;font-weight:700}
+.toc a.sub{padding-left:22px;font-size:12px}
+main{flex:1;min-width:0;position:relative}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#e6e8ec}
+@media (max-width:760px){.app{flex-direction:column}aside{width:auto;max-height:44vh;border-right:0;border-bottom:1px solid #e1e5eb}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><b>聊天表情面板 GIFs 模块</b><span>V1.0 · 2026-09-23</span></div>
+    <nav>
+      <a class="item" data-page="prototype" href="#prototype">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"></rect><path d="M11 18h2"></path></svg>交互原型</a>
+      <a class="item" data-page="doc" href="#doc">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"></path><path d="M14 2v6h6M9 13h8M9 17h8"></path></svg>需求文档</a>
+      <div class="toc" id="toc">
+        <a href="#doc/s1" data-sec="s1">一、需求概述</a>
+        <a href="#doc/s2" data-sec="s2">二、面板结构</a>
+        <a href="#doc/s3" data-sec="s3">三、GIFs 分页</a>
+        <a href="#doc/s4" data-sec="s4">四、Search 分页</a>
+        <a href="#doc/s5" data-sec="s5">五、表情素材与元数据管理</a>
+        <a class="sub" href="#doc/s5-1" data-sec="s5-1">上线流程</a>
+        <a class="sub" href="#doc/s5-2" data-sec="s5-2">元数据</a>
+        <a class="sub" href="#doc/s5-3" data-sec="s5-3">管理规则</a>
+        <a href="#doc/s6" data-sec="s6">六、验收标准</a>
+      </div>
+    </nav>
+  </aside>
+  <main><iframe id="view" title="内容"></iframe></main>
+</div>
+<script>
+var view=document.getElementById('view');
+var FILES={prototype:'prototype.html',doc:'requirements.html'};
+var current=null;
+function route(){
+  var h=(location.hash||'#prototype').slice(1).split('/');
+  var page=FILES[h[0]]?h[0]:'prototype', sec=h[1]||'';
+  document.querySelectorAll('.item').forEach(function(a){a.classList.toggle('active',a.dataset.page===page)});
+  document.querySelectorAll('.toc a').forEach(function(a){a.classList.toggle('active',page==='doc'&&a.dataset.sec===sec)});
+  if(current!==page){current=page;view.src=FILES[page]+(sec?'#'+sec:'');view.onload=function(){if(sec)scrollDoc(sec)};return;}
+  if(page==='doc'){scrollDoc(sec)}
+}
+function scrollDoc(sec){
+  try{
+    var d=view.contentDocument, el=sec?d.getElementById(sec):null;
+    var top=el?el.getBoundingClientRect().top+view.contentWindow.scrollY-20:0;
+    view.contentWindow.scrollTo({top:top,behavior:'smooth'});
+  }catch(e){view.src=FILES.doc+'#'+(sec||'')}
+}
+window.addEventListener('hashchange',route);
+route();
+</script>
+</body>
+</html>
